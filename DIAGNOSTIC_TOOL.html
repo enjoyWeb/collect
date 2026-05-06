@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Amazon 采集助手 - 快速诊断工具</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 900px;
+      width: 100%;
+      padding: 40px;
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-left: 4px solid #667eea;
+      border-radius: 4px;
+    }
+    
+    .section h2 {
+      color: #333;
+      font-size: 18px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .section p {
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    
+    .checklist {
+      list-style: none;
+    }
+    
+    .checklist li {
+      padding: 8px 0;
+      padding-left: 30px;
+      position: relative;
+      color: #555;
+    }
+    
+    .checklist li:before {
+      content: "☐";
+      position: absolute;
+      left: 0;
+      color: #999;
+      font-size: 18px;
+    }
+    
+    .checklist li.completed:before {
+      content: "✅";
+      color: #4caf50;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+    
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+      background: #e0e0e0;
+      color: #333;
+    }
+    
+    .btn-secondary:hover {
+      background: #d0d0d0;
+    }
+    
+    .btn-success {
+      background: #4caf50;
+      color: white;
+    }
+    
+    .btn-success:hover {
+      background: #45a049;
+    }
+    
+    .code-block {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 12px;
+      overflow-x: auto;
+      margin-top: 10px;
+      line-height: 1.4;
+    }
+    
+    .alert {
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    
+    .alert-success {
+      background: #e8f5e9;
+      border-left: 4px solid #4caf50;
+      color: #2e7d32;
+    }
+    
+    .alert-error {
+      background: #ffebee;
+      border-left: 4px solid #f44336;
+      color: #c62828;
+    }
+    
+    .alert-warning {
+      background: #fff3e0;
+      border-left: 4px solid #ff9800;
+      color: #e65100;
+    }
+    
+    .alert-info {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      color: #1565c0;
+    }
+    
+    .steps {
+      counter-reset: step-counter;
+      list-style: none;
+    }
+    
+    .steps li {
+      counter-increment: step-counter;
+      padding-left: 40px;
+      margin-bottom: 15px;
+      position: relative;
+      line-height: 1.6;
+      color: #555;
+    }
+    
+    .steps li:before {
+      content: counter(step-counter);
+      position: absolute;
+      left: 0;
+      top: 0;
+      background: #667eea;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    
+    .copy-btn {
+      float: right;
+      padding: 6px 12px;
+      background: #666;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    
+    .copy-btn:hover {
+      background: #555;
+    }
+    
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+      color: #999;
+      font-size: 12px;
+      text-align: center;
+    }
+    
+    .tab-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .tab-btn {
+      padding: 10px 16px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #999;
+      font-size: 14px;
+      font-weight: 500;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+    }
+    
+    .tab-btn.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .matrix {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    
+    .matrix th, .matrix td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .matrix th {
+      background: #f0f0f0;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .matrix tr:hover {
+      background: #f9f9f9;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+      
+      h1 {
+        font-size: 22px;
+      }
+      
+      .section h2 {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔧 Amazon 采集助手 - 快速诊断工具</h1>
+    <p class="subtitle">快速诊断和解决选择器配置问题</p>
+    
+    <!-- 导航 -->
+    <div class="tab-group">
+      <button class="tab-btn active" onclick="switchTab(event, 'quick')">⚡ 30秒诊断</button>
+      <button class="tab-btn" onclick="switchTab(event, 'detailed')">🔍 详细诊断</button>
+      <button class="tab-btn" onclick="switchTab(event, 'fix')">🛠️ 快速修复</button>
+      <button class="tab-btn" onclick="switchTab(event, 'docs')">📚 相关文档</button>
+    </div>
+    
+    <!-- 30秒诊断 -->
+    <div id="quick" class="tab-content active">
+      <div class="section">
+        <h2>⏱️ 30 秒快速诊断流程</h2>
+        
+        <div class="alert alert-info">
+          <span>💡 这个流程会告诉你问题具体在哪一步</span>
+        </div>
+        
+        <ol class="steps">
+          <li><strong>打开 DevTools</strong> - 在扩展窗口按 F12</li>
+          <li><strong>进入 Console</strong> - 选择 Console 标签页</li>
+          <li><strong>查看配置</strong> - 复制并粘贴下面的代码，按 Enter</li>
+          <li><strong>执行操作</strong> - 粘贴 URL → 点击【选择元素】→ 点击网页元素 → 确认</li>
+          <li><strong>查看日志</strong> - 观察 Console 中的输出</li>
+          <li><strong>对照诊断</strong> - 使用下面的矩阵找问题</li>
+        </ol>
+        
+        <div class="section" style="border-left: 4px solid #4caf50;">
+          <h2 style="color: #4caf50;">✓ 第 1 步：查询脚本（复制粘贴）</h2>
+          <button class="copy-btn" onclick="copyToClipboard(document.getElementById('query-code'))">复制</button>
+          <div class="code-block" id="query-code">chrome.storage.local.get(['automationConfig'], (result) => {
+  console.log('[诊断] 保存的配置：')
+  console.table(result.automationConfig?.urls || [])
+})</div>
+        </div>
+        
+        <h2 style="margin-top: 20px;">📊 诊断矩阵 - 根据现象查原因</h2>
+        <table class="matrix">
+          <tr>
+            <th>看到的现象</th>
+            <th>日志中</th>
+            <th>问题所在</th>
+            <th>快速修复</th>
+          </tr>
+          <tr>
+            <td>没有新页面打开</td>
+            <td>前 3 行日志</td>
+            <td>URL 无法访问</td>
+            <td>检查 URL 格式或网络</td>
+          </tr>
+          <tr>
+            <td>页面打开但没有高亮</td>
+            <td>第 4 行日志</td>
+            <td>内容脚本未注入</td>
+            <td>重新加载扩展</td>
+          </tr>
+          <tr>
+            <td>高亮正常但点击无反应</td>
+            <td>第 5-6 行</td>
+            <td>选择器生成失败</td>
+            <td>点击具体元素</td>
+          </tr>
+          <tr>
+            <td>配置已保存但刷新消失</td>
+            <td>全部 8 行</td>
+            <td>Storage 权限问题</td>
+            <td>检查 manifest.json</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    
+    <!-- 详细诊断 -->
+    <div id="detailed" class="tab-content">
+      <div class="section">
+        <h2>🔍 详细诊断步骤</h2>
+        
+        <h3 style="margin-top: 20px; color: #333;">第 1 个脚本：检查目前的配置</h3>
+        <button class="copy-btn" onclick="copyToClipboard(document.getElementById('check-config'))">复制</button>
+        <div class="code-block" id="check-config">chrome.storage.local.get(['automationConfig'], (result) => {
+  if (!result.automationConfig) {
+    console.error('❌ 配置为空！请先输入 URL')
+    return
+  }
+  console.log('✅ 找到配置')
+  console.table(result.automationConfig.urls)
+})</div>
+        <p style="margin-top: 10px;"><strong>预期结果：</strong>看到一个表格，显示所有 URL 和它们的选择器状态</p>
+        
+        <h3 style="margin-top: 20px; color: #333;">第 2 个脚本：测试消息发送</h3>
+        <button class="copy-btn" onclick="copyToClipboard(document.getElementById('test-message'))">复制</button>
+        <div class="code-block" id="test-message">chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+  if (!tabs[0]) {
+    console.error('❌ 没有活跃的标签页')
+    return
+  }
+  chrome.tabs.sendMessage(tabs[0].id, {action: 'test'}, response => {
+    if (chrome.runtime.lastError) {
+      console.error('❌ 消息发送失败:', chrome.runtime.lastError.message)
+    } else {
+      console.log('✅ 消息发送成功')
+    }
+  })
+})</div>
+        <p style="margin-top: 10px;"><strong>预期结果：</strong>看到"✅ 消息发送成功"或具体的错误信息</p>
+        
+        <h3 style="margin-top: 20px; color: #333;">第 3 个脚本：检查当前页面的可点击元素</h3>
+        <button class="copy-btn" onclick="copyToClipboard(document.getElementById('check-elements'))">复制</button>
+        <div class="code-block" id="check-elements">// 在打开的新页面的 Console 中运行
+const buttons = Array.from(document.querySelectorAll('button, a, [onclick]'))
+  .filter(el => el.offsetHeight > 0)
+  .slice(0, 5)
+
+buttons.forEach((btn, i) => {
+  console.log(`[${i}] ${btn.tagName}`)
+  console.log('   文本:', btn.textContent.substring(0, 50))
+  console.log('   ID:', btn.id || '无')
+})</div>
+        <p style="margin-top: 10px;"><strong>预期结果：</strong>看到页面上的 5 个可点击元素的信息</p>
+      </div>
+    </div>
+    
+    <!-- 快速修复 -->
+    <div id="fix" class="tab-content">
+      <div class="section">
+        <h2>🛠️ 常见问题快速修复</h2>
+        
+        <div class="alert alert-warning" style="margin-bottom: 20px;">
+          <span>⚠️ 按照下面的问题类型找到你的情况，执行相应的修复步骤</span>
+        </div>
+        
+        <h3 style="color: #333; margin: 20px 0 15px;">❌ 错误：未选择任何元素</h3>
+        <div style="background: #fff9e6; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+          <p><strong>原因：</strong>没有成功点击页面元素</p>
+          <p style="margin-top: 10px;"><strong>修复步骤：</strong></p>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>点击【选择元素】后，等待弹窗完全显示（黑色半透明背景）</li>
+            <li>不要点击文字，要点击实际的按钮或链接元素</li>
+            <li>确保鼠标在网页内容上，不是浏览器工具栏</li>
+            <li>重新尝试，这次更慢、更仔细地点击</li>
+          </ul>
+        </div>
+        
+        <h3 style="color: #333; margin: 20px 0 15px;">❌ 错误：未找到对应的 URL</h3>
+        <div style="background: #fff9e6; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+          <p><strong>原因：</strong>URL 被修改或不匹配</p>
+          <p style="margin-top: 10px;"><strong>修复步骤：</strong></p>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>确认输入框中的 URL 是否完整且正确</li>
+            <li>删除这个 URL 然后重新粘贴一遍</li>
+            <li>重新点击【选择元素】</li>
+          </ul>
+        </div>
+        
+        <h3 style="color: #333; margin: 20px 0 15px;">⚠️ 配置已保存但刷新后消失</h3>
+        <div style="background: #fff9e6; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+          <p><strong>原因：</strong>浏览器缓存或隐身模式</p>
+          <p style="margin-top: 10px;"><strong>修复步骤：</strong></p>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>确认【不是】在隐身模式下使用（隐身模式不保存数据）</li>
+            <li>打开 chrome://extensions，确认扩展已启用</li>
+            <li>点击扩展图标重新打开弹窗</li>
+            <li>检查配置是否还在</li>
+          </ul>
+        </div>
+        
+        <h3 style="color: #333; margin: 20px 0 15px;">🔴 完全重置（最后手段）</h3>
+        <div style="background: #ffe6e6; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+          <p><strong>当以上都不行时，執行重置：</strong></p>
+          <ol style="margin-left: 20px; margin-top: 10px;">
+            <li>打开 chrome://extensions</li>
+            <li>找到"Amazon 采集助手"扩展</li>
+            <li>点击【移除】</li>
+            <li>刷新浏览器页面</li>
+            <li>重新加载扩展（选择 /Users/zhuyun/www/collect/）</li>
+            <li>重新开始配置</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 相关文档 -->
+    <div id="docs" class="tab-content">
+      <div class="section">
+        <h2>📚 相关文档</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
+          <a href="QUICK_DIAGNOSTIC_CHECKLIST.md" target="_blank" style="text-decoration: none;">
+            <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; hover:background: #f0f0f0; cursor:pointer;">
+              <h3 style="color: #667eea; margin-bottom: 8px;">⚡ 快速诊断清单</h3>
+              <p style="font-size: 12px; color: #666;">30秒快速诊断流程和问题矩阵</p>
+            </div>
+          </a>
+          
+          <a href="SELECTOR_CONFIG_TROUBLESHOOTING.md" target="_blank" style="text-decoration: none;">
+            <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; cursor:pointer;">
+              <h3 style="color: #667eea; margin-bottom: 8px;">🔧 排故指南</h3>
+              <p style="font-size: 12px; color: #666;">完整的选择器配置排查步骤</p>
+            </div>
+          </a>
+          
+          <a href="DEBUG_SCRIPTS.md" target="_blank" style="text-decoration: none;">
+            <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; cursor:pointer;">
+              <h3 style="color: #667eea; margin-bottom: 8px;">🪜 调试脚本集</h3>
+              <p style="font-size: 12px; color: #666;">10个复制粘贴脚本，快速诊断问题</p>
+            </div>
+          </a>
+          
+          <a href="EXECUTION_TRACE_GUIDE.md" target="_blank" style="text-decoration: none;">
+            <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; cursor:pointer;">
+              <h3 style="color: #667eea; margin-bottom: 8px;">📊 执行轨迹</h3>
+              <p style="font-size: 12px; color: #666;">代码执行的完整轨迹和日志解释</p>
+            </div>
+          </a>
+          
+          <a href="PROJECT_ARCHITECTURE.md" target="_blank" style="text-decoration: none;">
+            <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; cursor:pointer;">
+              <h3 style="color: #667eea; margin-bottom: 8px;">🏗️ 项目架构</h3>
+              <p style="font-size: 12px; color: #666;">代码结构和文件说明</p>
+            </div>
+          </a>
+          
+          <a href="AMAZON_AUTOMATION_GUIDE.md" target="_blank" style="text-decoration: none;">
+            <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; cursor:pointer;">
+              <h3 style="color: #667eea; margin-bottom: 8px;">📖 使用指南</h3>
+              <p style="font-size: 12px; color: #666;">详细的使用步骤和常见Q&A</p>
+            </div>
+          </a>
+        </div>
+        
+        <div class="alert alert-info" style="margin-top: 20px;">
+          <span>💡 所有文档都在项目根目录中，用 Markdown 查看器打开</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>Amazon 采集助手 v2.1.0 | 快速诊断工具 | 2024</p>
+      <p style="margin-top: 10px;">
+        遇到问题？<a href="DOCS_INDEX.md" style="color: #667eea; text-decoration: none;">查看完整文档</a>
+      </p>
+    </div>
+  </div>
+  
+  <script>
+    function switchTab(event, tabName) {
+      // 隐藏所有标签页内容
+      const contents = document.querySelectorAll('.tab-content')
+      contents.forEach(content => content.classList.remove('active'))
+      
+      // 移除所有标签页按钮的活跃状态
+      const buttons = document.querySelectorAll('.tab-btn')
+      buttons.forEach(btn => btn.classList.remove('active'))
+      
+      // 显示选定的标签页
+      document.getElementById(tabName).classList.add('active')
+      event.target.classList.add('active')
+    }
+    
+    function copyToClipboard(element) {
+      const text = element.textContent
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target
+        const originalText = btn.textContent
+        btn.textContent = '✓ 已复制'
+        setTimeout(() => {
+          btn.textContent = originalText
+        }, 2000)
+      })
+    }
+  </script>
+</body>
+</html>

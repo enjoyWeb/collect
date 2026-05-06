@@ -1,0 +1,244 @@
+{
+  "title": "示例配置集合",
+  "description": "这些是预制的配置示例，可以帮助您快速理解如何使用此扩展。",
+  "examples": [
+    {
+      "name": "示例 1: 自动签到",
+      "description": "自动登录网站并点击签到按钮",
+      "urls": [
+        {
+          "url": "https://example.com/login",
+          "selector": "button.login-btn",
+          "delay": 2000,
+          "description": "打开登录页面并点击登录按钮"
+        },
+        {
+          "url": "https://example.com/checkin",
+          "selector": ".daily-checkin-btn",
+          "delay": 2500,
+          "description": "进入签到页面并点击签到"
+        }
+      ],
+      "options": {
+        "closeTab": true,
+        "autoNext": true
+      }
+    },
+    {
+      "name": "示例 2: 游戏内领取奖励",
+      "description": "依次打开游戏页面并领取各种奖励",
+      "urls": [
+        {
+          "url": "https://mygame.example.com/rewards/daily",
+          "selector": ".btn-claim-reward",
+          "delay": 1500,
+          "description": "领取每日奖励"
+        },
+        {
+          "url": "https://mygame.example.com/rewards/login",
+          "selector": "[data-reward-type='login']",
+          "delay": 1500,
+          "description": "领取登录奖励"
+        },
+        {
+          "url": "https://mygame.example.com/rewards/special",
+          "selector": "#claim-special-reward",
+          "delay": 2000,
+          "description": "领取特殊奖励"
+        }
+      ],
+      "options": {
+        "closeTab": true,
+        "autoNext": true
+      }
+    },
+    {
+      "name": "示例 3: 表单批量提交",
+      "description": "依次打开和提交多个表单",
+      "urls": [
+        {
+          "url": "https://survey.example.com/form/survey1",
+          "selector": "button[type='submit']",
+          "delay": 2500,
+          "description": "提交问卷 1"
+        },
+        {
+          "url": "https://survey.example.com/form/survey2",
+          "selector": ".submit-button",
+          "delay": 2500,
+          "description": "提交问卷 2"
+        },
+        {
+          "url": "https://survey.example.com/form/feedback",
+          "selector": "#btn-submit",
+          "delay": 2500,
+          "description": "提交反馈表单"
+        }
+      ],
+      "options": {
+        "closeTab": true,
+        "autoNext": true
+      }
+    },
+    {
+      "name": "示例 4: 多网站操作",
+      "description": "在不同网站上执行不同操作",
+      "urls": [
+        {
+          "url": "https://site1.example.com/action1",
+          "selector": ".action-button",
+          "delay": 2000,
+          "description": "网站 1 上的操作"
+        },
+        {
+          "url": "https://site2.example.com/action2",
+          "selector": ".trigger-button",
+          "delay": 2000,
+          "description": "网站 2 上的操作"
+        },
+        {
+          "url": "https://site3.example.com/action3",
+          "selector": "button.execute",
+          "delay": 2000,
+          "description": "网站 3 上的操作"
+        }
+      ],
+      "options": {
+        "closeTab": false,
+        "autoNext": true
+      }
+    }
+  ],
+  "selectorExamples": [
+    {
+      "type": "按 Class 选择",
+      "html": "<button class=\"submit-btn\">提交</button>",
+      "selector": ".submit-btn"
+    },
+    {
+      "type": "按 ID 选择",
+      "html": "<button id=\"confirm-btn\">确认</button>",
+      "selector": "#confirm-btn"
+    },
+    {
+      "type": "按标签类型",
+      "html": "<button>点击</button>",
+      "selector": "button"
+    },
+    {
+      "type": "按属性值",
+      "html": "<button data-action=\"claim\">领取</button>",
+      "selector": "[data-action=\"claim\"]"
+    },
+    {
+      "type": "多个 Class",
+      "html": "<div class=\"btn btn-primary\">立即登陆</div>",
+      "selector": ".btn.btn-primary"
+    },
+    {
+      "type": "组合选择器",
+      "html": "<form><button class=\"submit-btn\">提交</button></form>",
+      "selector": "form button.submit-btn"
+    },
+    {
+      "type": "属性包含",
+      "html": "<button onclick=\"start()\">开始</button>",
+      "selector": "button[onclick*=\"start\"]"
+    },
+    {
+      "type": "第一个元素",
+      "html": "<div><button>1</button><button>2</button></div>",
+      "selector": "button:first-child"
+    }
+  ],
+  "delayRecommendations": {
+    "localhost": {
+      "min": 500,
+      "typical": 1000,
+      "description": "本地服务器，网络极快"
+    },
+    "fast_wifi": {
+      "min": 1000,
+      "typical": 1500,
+      "description": "高速 WiFi 或光纤网络"
+    },
+    "normal_wifi": {
+      "min": 1500,
+      "typical": 2000,
+      "description": "普通 WiFi 或 4G 网络"
+    },
+    "slow_network": {
+      "min": 2500,
+      "typical": 3000,
+      "description": "较慢网络或 3G 网络"
+    },
+    "animated_page": {
+      "min": 3000,
+      "typical": 3500,
+      "description": "页面包含动画效果"
+    }
+  },
+  "tips": [
+    {
+      "title": "如何查找正确的选择器？",
+      "steps": [
+        "1. 打开浏览器开发者工具（按 F12）",
+        "2. 右键点击要点击的元素",
+        "3. 选择【检查】或【Inspect】",
+        "4. 在 HTML 代码中找到该元素",
+        "5. 复制 class 或 id 属性作为选择器"
+      ]
+    },
+    {
+      "title": "如何测试选择器是否正确？",
+      "steps": [
+        "1. 打开包含目标元素的网页",
+        "2. 按 F12 打开开发者工具",
+        "3. 进入【Console】标签",
+        "4. 输入: document.querySelector('你的选择器')",
+        "5. 如果返回元素对象，说明选择器正确"
+      ]
+    },
+    {
+      "title": "如何设置合理的延迟时间？",
+      "steps": [
+        "1. 先用较大的延迟（如 3000ms）测试",
+        "2. 如果运行成功，逐步减少延迟时间",
+        "3. 找到最小可行延迟（页面仍能正确加载）",
+        "4. 在该基础上再加 500ms 作为安全边距",
+        "5. 不同网站可能需要不同延迟时间"
+      ]
+    }
+  ],
+  "commonIssues": [
+    {
+      "problem": "扩展找不到元素，显示【未找到选择器】",
+      "solutions": [
+        "检查选择器语法是否正确",
+        "使用开发者工具验证选择器",
+        "确认元素在 DOM 中存在",
+        "尝试增加延迟时间",
+        "使用更具体的选择器"
+      ]
+    },
+    {
+      "problem": "链接无法打开",
+      "solutions": [
+        "检查 URL 格式是否正确（要包含 http:// 或 https://）",
+        "确认网址是否有效且可访问",
+        "检查网络连接是否正常",
+        "查看浏览器控制台中的错误信息"
+      ]
+    },
+    {
+      "problem": "自动化运行到中间停止了",
+      "solutions": [
+        "查看运行日志找到失败的具体链接",
+        "检查该链接的选择器是否正确",
+        "尝试增加延迟时间",
+        "检查网络是否中断",
+        "重新开始运行"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>扩展功能测试页面</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
+    .container {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .test-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+    }
+
+    .test-section h2 {
+      color: #667eea;
+      margin-top: 0;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background-color: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-success {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background-color: #218838;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+
+    .btn-warning {
+      background-color: #ffc107;
+      color: #333;
+    }
+
+    .btn-warning:hover {
+      background-color: #e0a800;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 8px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0;
+      color: #333;
+    }
+
+    .info-box {
+      background: #e7f3ff;
+      border: 1px solid #b3d9ff;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 10px 0;
+      color: #333;
+    }
+
+    code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      color: #d63384;
+    }
+
+    .test-form {
+      background: white;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    table th,
+    table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+      background: #667eea;
+      color: white;
+    }
+
+    table tr:hover {
+      background: #f9f9f9;
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .status-ready {
+      background: #28a745;
+    }
+
+    .status-pending {
+      background: #ffc107;
+    }
+
+    .status-error {
+      background: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 扩展功能测试页面</h1>
+
+    <!-- 测试1: 元素选择 -->
+    <div class="test-section">
+      <h2>1️⃣ 元素选择测试</h2>
+      <p>使用扩展进入元素选择模式，尝试点击下面的各种元素：</p>
+      <div class="button-group">
+        <button id="testBtn1" class="btn-primary">🎯 测试按钮 1</button>
+        <button id="testBtn2" class="btn-success">✅ 成功按钮</button>
+        <button id="testBtn3" class="btn-danger">❌ 危险按钮</button>
+        <button id="testBtn4" class="btn-warning">⚠️ 警告按钮</button>
+      </div>
+      <div class="test-form">
+        <div class="form-group">
+          <label for="testInput">📝 测试输入框:</label>
+          <input type="text" id="testInput" placeholder="点击可选择">
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="testCheckbox">
+            🔲 测试复选框
+          </label>
+        </div>
+        <div class="form-group">
+          <label for="testSelect">📌 测试下拉框:</label>
+          <select id="testSelect" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            <option>选项 1</option>
+            <option>选项 2</option>
+            <option>选项 3</option>
+          </select>
+        </div>
+      </div>
+      <div class="info-box">
+        <strong>使用提示:</strong><br>
+        1. 在扩展中点击"选择元素"按钮<br>
+        2. 页面会以此打开，界面转为选择模式<br>
+        3. 鼠标悬停在元素上会显示高亮<br>
+        4. 点击想要的元素，扩展会提示选择的CSS选择器<br>
+        5. 点击"确认选择"保存该选择器
+      </div>
+    </div>
+
+    <!-- 测试2: 链接点击 -->
+    <div class="test-section">
+      <h2>2️⃣ 链接点击测试</h2>
+      <p>配置好选择器后，扩展会自动点击这些元素：</p>
+      <div class="button-group">
+        <button id="pageLink1" class="btn-primary">📖 页面链接 1</button>
+        <button id="pageLink2" class="btn-primary">📖 页面链接 2</button>
+        <button id="submitForm" class="btn-success">📤 提交表单</button>
+      </div>
+      <p id="clickResult" style="margin-top: 20px; padding: 15px; background: #f0f8f0; border-radius: 5px; display: none;">
+        ✅ 元素被成功点击！
+      </p>
+    </div>
+
+    <!-- 测试3: 复杂选择器测试 -->
+    <div class="test-section">
+      <h2>3️⃣ 复杂元素选择测试</h2>
+      <p>测试不同类型和复杂结构的元素：</p>
+      <div class="test-form">
+        <div class="form-group">
+          <button id="btnWithClass" class="btn btn-primary custom-class-1 custom-class-2">
+            🎨 多个 Class 的按钮
+          </button>
+        </div>
+        <div class="form-group">
+          <button id="uniqueId" type="button" data-test="value" class="special">
+            🔑 带 ID 和 Data 属性的按钮
+          </button>
+        </div>
+        <div class="form-group">
+          <input type="email" id="emailInput" placeholder="📧 邮箱输入框">
+        </div>
+        <div class="form-group">
+          <input type="number" id="numberInput" placeholder="🔢 数字输入框">
+        </div>
+      </div>
+    </div>
+
+    <!-- 测试4: 状态表 -->
+    <div class="test-section">
+      <h2>4️⃣ 选择器生成测试</h2>
+      <p>以下是可能被生成的 CSS 选择器示例：</p>
+      <table>
+        <tr>
+          <th>🏷️ 元素特征</th>
+          <th>生成的选择器</th>
+          <th>优先级</th>
+        </tr>
+        <tr>
+          <td>ID属性</td>
+          <td><code>#elementId</code></td>
+          <td><span class="status-indicator status-ready"></span>最高</td>
+        </tr>
+        <tr>
+          <td>Class属性</td>
+          <td><code>.className</code></td>
+          <td><span class="status-indicator status-ready"></span>高</td>
+        </tr>
+        <tr>
+          <td>Data属性</td>
+          <td><code>[data-attr="value"]</code></td>
+          <td><span class="status-indicator status-ready"></span>高</td>
+        </tr>
+        <tr>
+          <td>Name属性</td>
+          <td><code>[name="fieldName"]</code></td>
+          <td><span class="status-indicator status-ready"></span>中</td>
+        </tr>
+        <tr>
+          <td>Type属性</td>
+          <td><code>input[type="email"]</code></td>
+          <td><span class="status-indicator status-pending"></span>中低</td>
+        </tr>
+        <tr>
+          <td>标签名+索引</td>
+          <td><code>button:nth-of-type(1)</code></td>
+          <td><span class="status-indicator status-error"></span>最低</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 测试5: 功能验证 -->
+    <div class="test-section">
+      <h2>5️⃣ 功能验证清单</h2>
+      <div class="test-form">
+        <label>
+          <input type="checkbox" id="check-selector-highlight">
+          元素选择时能显示高亮效果
+        </label>
+        <label>
+          <input type="checkbox" id="check-selector-display">
+          选择后能正确显示 CSS 选择器
+        </label>
+        <label>
+          <input type="checkbox" id="check-auto-click">
+          自动化运行时能成功点击元素
+        </label>
+        <label>
+          <input type="checkbox" id="check-tab-close">
+          页面标签页能正确关闭或保留
+        </label>
+        <label>
+          <input type="checkbox" id="check-logging">
+          运行日志能正常显示
+        </label>
+      </div>
+      <div class="button-group" style="margin-top: 15px;">
+        <button class="btn btn-success" onclick="saveTestResults()">💾 保存测试结果</button>
+        <button class="btn btn-warning" onclick="resetTestResults()">🔄 重置测试</button>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top: 30px;">
+      <strong>📌 使用说明：</strong><br>
+      <ol>
+        <li>打开 Chrome 扩展程序管理页面 (<code>chrome://extensions/</code>)</li>
+        <li>启用"开发者模式"</li>
+        <li>点击"加载已解压的扩展程序"</li>
+        <li>选择扩展所在的文件夹</li>
+        <li>在任何页面上点击扩展图标打开 Popup</li>
+        <li>粘贴此测试页面的 URL: <code id="pageUrl">file://</code></li>
+        <li>点击"选择元素"开始测试</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    // 更新页面URL
+    document.getElementById('pageUrl').textContent = window.location.href;
+
+    // 添加事件监听器来演示功能
+    document.getElementById('testBtn1').addEventListener('click', function() {
+      alert('✅ 测试按钮 1 被点击！');
+    });
+
+    document.getElementById('testBtn2').addEventListener('click', function() {
+      alert('✅ 成功按钮被点击！');
+    });
+
+    document.getElementById('testBtn3').addEventListener('click', function() {
+      alert('✅ 危险按钮被点击！');
+    });
+
+    document.getElementById('testBtn4').addEventListener('click', function() {
+      alert('✅ 警告按钮被点击！');
+    });
+
+    document.getElementById('pageLink1').addEventListener('click', function() {
+      showClickResult('页面链接 1');
+    });
+
+    document.getElementById('pageLink2').addEventListener('click', function() {
+      showClickResult('页面链接 2');
+    });
+
+    document.getElementById('submitForm').addEventListener('click', function() {
+      showClickResult('表单');
+    });
+
+    document.getElementById('btnWithClass').addEventListener('click', function() {
+      alert('✅ 多 Class 按钮被点击！');
+    });
+
+    document.getElementById('uniqueId').addEventListener('click', function() {
+      alert('✅ 带 ID 的按钮被点击！');
+    });
+
+    function showClickResult(elementName) {
+      const resultDiv = document.getElementById('clickResult');
+      resultDiv.textContent = `✅ ${elementName} 被成功点击！时间: ${new Date().toLocaleTimeString()}`;
+      resultDiv.style.display = 'block';
+      setTimeout(() => {
+        resultDiv.style.display = 'none';
+      }, 3000);
+    }
+
+    function saveTestResults() {
+      const results = {
+        timestamp: new Date().toISOString(),
+        checks: {
+          selectorHighlight: document.getElementById('check-selector-highlight').checked,
+          selectorDisplay: document.getElementById('check-selector-display').checked,
+          autoClick: document.getElementById('check-auto-click').checked,
+          tabClose: document.getElementById('check-tab-close').checked,
+          logging: document.getElementById('check-logging').checked,
+        },
+      };
+      localStorage.setItem('testResults', JSON.stringify(results));
+      alert('📊 测试结果已保存！');
+    }
+
+    function resetTestResults() {
+      document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+      });
+      alert('🔄 测试结果已重置！');
+    }
+
+    // 页面加载时的日志
+    console.log('🧪 测试页面已加载');
+    console.log('📍 当前URL:', window.location.href);
+    console.log('💡 在扩展中打开此页面进行元素选择测试');
+  </script>
+</body>
+</html>

@@ -46,8 +46,174 @@ function sendResponseAndResetDebounce(response, sendResponse) {
   }
 }
 
+// ✅ 处理点击元素的异步函数（不使用 async/await）
+function processClickElement(selector, waitForSuccess) {
+  console.log('[processClickElement] 开始处理，selector=' + selector);
+  
+  // 第一次尝试查找元素
+  let element = document.querySelector(selector);
+  
+  if (element) {
+    // 找到元素，直接执行点击
+    handleElementFound(element, selector, waitForSuccess);
+  } else {
+    // 未找到元素，等待4秒后重试
+    notifyPopupLog('⏸️ 第一次未找到元素，等待 4 秒后重试...', 'warning');
+    console.log('[processClickElement] 第一次未找到元素，等待4秒后重试');
+    
+    setTimeout(function() {
+      console.log('[processClickElement 重试] 4秒已过，重新查询元素');
+      element = document.querySelector(selector);
+      
+      if (element) {
+        console.log('[processClickElement 重试] ✅ 找到元素');
+        handleElementFound(element, selector, waitForSuccess);
+      } else {
+        console.log('[processClickElement 重试] ❌ 仍未找到元素，拓展搜索');
+        notifyPopupLog(`❌ 未找到页面元素\n选择器: ${selector}\n请检查选择器是否正确`, 'error');
+        
+        // 发送失败消息给background
+        chrome.runtime.sendMessage({
+          action: 'elementFailed',
+          selector: selector,
+          message: '元素未找到，重试后仍未找到',
+        }, function(bgResponse) {
+          console.log('[processClickElement] background 收到 elementFailed 消息');
+        });
+        
+        isClickProcessing = false;
+      }
+    }, 4000);
+  }
+}
+
+// ✅ 处理找到元素后的逻辑（不使用 async/await）
+function handleElementFound(element, selector, waitForSuccess) {
+  console.log('[handleElementFound] 找到元素，准备点击');
+  notifyPopupLog(`✅ 找到页面元素\n标签: ${element.tagName.toLowerCase()}\n类名: ${element.className}`, 'success');
+  
+  // 滚动到元素位置
+  element.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center',
+  });
+  
+  // 等待 100ms 后点击
+  setTimeout(function() {
+    // 触发鼠标移入事件
+    const mouseOverEvent = new MouseEvent('mouseover', {
+      bubbles: true,
+      cancelable: true,
+      view: window,
+    });
+    element.dispatchEvent(mouseOverEvent);
+    
+    // 等待 50ms 后点击
+    setTimeout(function() {
+      // 触发点击事件
+      if (element.click && typeof element.click === 'function') {
+        element.click();
+      }
+      
+      console.log('[handleElementFound] ✅ 元素点击成功');
+      notifyPopupLog('✅ 元素已点击成功', 'success');
+      
+      // 如果需要等待成功弹窗
+      if (waitForSuccess) {
+        notifyPopupLog('⏳ 等待成功弹窗（最多60秒）...', 'info');
+        console.log('[handleElementFound] 开始等待成功弹窗');
+        waitForSuccessPopupPromise()
+          .then(function(result) {
+            console.log('[handleElementFound] 弹窗检测完成:', result);
+            
+            if (result.found) {
+              // 找到成功弹窗
+              console.log('[handleElementFound] ✅ 检测到成功弹窗');
+              notifyPopupLog(`✅ 检测到成功弹窗\n弹窗内容: ${result.message}`, 'success');
+              
+              // 发送成功消息给 background
+              chrome.runtime.sendMessage({
+                action: 'elementSuccess',
+                selector: selector,
+                message: result.message,
+              }, function(bgResponse) {
+                console.log('[handleElementFound] background 收到 elementSuccess 消息');
+              });
+            } else {
+              // 未找到成功弹窗
+              console.log('[handleElementFound] ❌ 未检测到成功弹窗');
+              notifyPopupLog(`❌ 未检测到成功弹窗\n${result.message}\n自动化已停止`, 'error');
+              
+              // 发送失败消息给 background
+              chrome.runtime.sendMessage({
+                action: 'elementFailed',
+                selector: selector,
+                message: result.message,
+              }, function(bgResponse) {
+                console.log('[handleElementFound] background 收到 elementFailed 消息');
+              });
+            }
+            
+            isClickProcessing = false;
+          })
+          .catch(function(error) {
+            console.error('[handleElementFound] 等待弹窗时出错:', error);
+            notifyPopupLog(`❌ 点击元素时出错\n错误: ${error.message}`, 'error');
+            
+            chrome.runtime.sendMessage({
+              action: 'elementFailed',
+              selector: selector,
+              message: error.message,
+            }, function(bgResponse) {
+              console.log('[handleElementFound] background 收到 elementFailed 消息');
+            });
+            
+            isClickProcessing = false;
+          });
+      } else {
+        // 不等待弹窗
+        console.log('[handleElementFound] 不需要等待弹窗，直接发送成功消息');
+        notifyPopupLog('✅ 元素已点击成功（无需等待弹窗）', 'success');
+        
+        chrome.runtime.sendMessage({
+          action: 'elementSuccess',
+          selector: selector,
+          message: '元素已点击',
+        }, function(bgResponse) {
+          console.log('[handleElementFound] background 收到 elementSuccess 消息');
+        });
+        
+        isClickProcessing = false;
+      }
+    }, 50);
+  }, 100);
+}
+
+// ✅ 将 waitForSuccessPopup 改造为返回 Promise 的函数
+function waitForSuccessPopupPromise() {
+  return new Promise(function(resolve, reject) {
+    // 这里调用原来的 waitForSuccessPopup，但需要等待它完成
+    const resultPromise = waitForSuccessPopup();
+    
+    // 如果 waitForSuccessPopup 返回 Promise
+    if (resultPromise && typeof resultPromise.then === 'function') {
+      resultPromise
+        .then(function(result) {
+          resolve(result);
+        })
+        .catch(function(error) {
+          reject(error);
+        });
+    } else {
+      // 如果不是 Promise，直接解决
+      resolve(resultPromise);
+    }
+  });
+}
+
 // 监听来自 background.js 的消息
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+// ✅ 移除 async，避免 await 破坏消息上下文
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('[Content Script] ⬇️ 收到来自 Background 的消息:', request);
   
   if (request.action === 'enableElementSelection') {
@@ -79,145 +245,14 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     
     notifyPopupLog(`🔍 开始处理点击指令\n选择器: ${selector}\n等待弹窗: ${waitForSuccess ? '是' : '否'}`, 'info');
 
-    try {
-      let element = document.querySelector(selector);
-      
-      // 如果找不到，等 1 秒后再试一次（重试机制）
-      if (!element) {
-        notifyPopupLog('⏸️ 第一次未找到元素，等待 1 秒后重试...', 'warning');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        element = document.querySelector(selector);
-      }
-
-      if (element) {
-        console.log('[Content Script] 找到元素:', element);
-        notifyPopupLog(`✅ 找到页面元素\n标签: ${element.tagName.toLowerCase()}\n类名: ${element.className}`, 'success');
-
-        // 滚动到元素位置
-        element.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-        });
-
-        // 等待 100ms 后点击 - ⚠️ 异步操作，需要返回 true
-        setTimeout(async () => {
-          // 触发鼠标移入事件
-          const mouseOverEvent = new MouseEvent('mouseover', {
-            bubbles: true,
-            cancelable: true,
-            view: window,
-          });
-          element.dispatchEvent(mouseOverEvent);
-
-          // 等待 50ms 后点击
-          setTimeout(async () => {
-            // 触发点击事件
-            if (element.click && typeof element.click === 'function') {
-              element.click();
-            }
-
-            console.log('[Content Script] ✅ 元素点击成功');
-            notifyPopupLog('✅ 元素已点击成功', 'success');
-
-            // 如果需要等待成功弹窗
-            if (waitForSuccess) {
-              notifyPopupLog('⏳ 等待成功弹窗（最多60秒）...', 'info');
-              const result = await waitForSuccessPopup();
-              console.log('[Content Script] 弹窗检测结果:', result);
-              
-              // ✅ 根据是否找到"成功"而发送不同的消息
-              if (result.found) {
-                // 找到成功弹窗，发送成功消息给 background
-                console.log('[Content Script] ✅ 检测到成功弹窗，发送给 background');
-                notifyPopupLog(`✅ 检测到成功弹窗\n弹窗内容: ${result.message}`, 'success');
-                
-                // 立即响应（保活消息通道）
-                const response = { 
-                  success: true, 
-                  message: '元素已点击，成功弹窗已检测到',
-                  popupDetected: true,
-                };
-                console.log('[Content Script] ← sendResponse 数据:', response);
-                sendResponseAndResetDebounce(response, sendResponse);
-                
-                // 然后发送新消息给 background 以执行下一步操作
-                setTimeout(() => {
-                  chrome.runtime.sendMessage({
-                    action: 'elementSuccess',
-                    selector: selector,
-                    message: result.message,
-                  }, (bgResponse) => {
-                    console.log('[Content Script] background 收到 elementSuccess 消息');
-                  });
-                }, 0);
-              } else {
-                // ❌ 未找到成功弹窗，停止自动化
-                console.log('[Content Script] ❌ 未检测到成功弹窗，发送失败消息');
-                notifyPopupLog(`❌ 未检测到成功弹窗\n${result.message}\n自动化已停止`, 'error');
-                
-                // 立即响应
-                const response = { 
-                  success: false, 
-                  message: '未检测到"成功"弹窗',
-                  popupDetected: false,
-                };
-                console.log('[Content Script] ← sendResponse 数据:', response);
-                sendResponseAndResetDebounce(response, sendResponse);
-                
-                // 然后发送新消息给 background 以停止自动化
-                setTimeout(() => {
-                  chrome.runtime.sendMessage({
-                    action: 'elementFailed',
-                    selector: selector,
-                    message: result.message,
-                  }, (bgResponse) => {
-                    console.log('[Content Script] background 收到 elementFailed 消息');
-                  });
-                }, 0);
-              }
-            } else {
-              // 通知 background.js 点击成功（不等待弹窗）
-              console.log('[Content Script] 不需要等待弹窗，直接响应');
-              const response = { success: true, message: '元素已点击' };
-              console.log('[Content Script] ← sendResponse 数据:', response);
-              sendResponseAndResetDebounce(response, sendResponse);
-              
-              // 然后发送新消息给 background
-              setTimeout(() => {
-                chrome.runtime.sendMessage({
-                  action: 'elementSuccess',
-                  selector: selector,
-                  message: '元素已点击',
-                }, (bgResponse) => {
-                  console.log('[Content Script] background 收到 elementSuccess 消息');
-                });
-              }, 0);
-            }
-          }, 50);
-        }, 100);
-        
-        // ✅ 立即返回 true，表示异步响应
-        return true;
-      } else {
-        console.log('[Content Script] ❌ 未找到元素，选择器:', selector);
-        const responseData = { success: false, message: '未找到元素', selector: selector };
-        console.log('[Content Script] ← sendResponse 数据:', responseData);
-        notifyPopupLog(`❌ 未找到页面元素\n选择器: ${selector}\n请检查选择器是否正确`, 'error');
-        sendResponseAndResetDebounce(responseData, sendResponse);
-        return true;
-      }
-    } catch (error) {
-      console.error('[Content Script] ❌ 处理 clickElement 时出错:', error);
-      const responseData = { 
-        success: false, 
-        message: error.message || '处理请求时出错',
-        error: error.toString() 
-      };
-      console.log('[Content Script] ← sendResponse 错误数据:', responseData);
-      notifyPopupLog(`❌ 点击元素时出错\n错误: ${error.message}`, 'error');
-      sendResponseAndResetDebounce(responseData, sendResponse);
-      return true;
-    }
+    // ✅ 立即发送初始响应（表示消息已接收），然后异步处理
+    sendResponse({ success: true, message: '消息已接收' });
+    
+    
+    // 异步处理点击逻辑（不使用 try-catch 作为外层包裹）
+    processClickElement(selector, waitForSuccess);
+    
+    return true;
   }
 });
 

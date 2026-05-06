@@ -205,7 +205,7 @@ function openNextUrl() {
     });
 
     // ✅ 等待页面加载完成后点击元素
-    const waitTime = 4000;
+    const waitTime = 8000;
     console.log(`[openNextUrl] 第 ${automateState.currentIndex + 1} 个链接：等待 ${waitTime}ms 后点击元素: ${selector}`);
     notifyPopup('addLog', {
       message: `⏳ 第 ${automateState.currentIndex + 1} 个链接：等待页面加载 ${waitTime}ms (${waitTime/1000}秒)...`,

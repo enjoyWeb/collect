@@ -90,6 +90,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     
     sendResponse({ status: 'failed-handled' });
+  } else if (request.action === 'elementNotFound') {
+    // ⚠️ content-script 未找到点击元素，记录URL并继续下一条
+    console.log('[Background] 收到 elementNotFound 消息:', request);
+    console.log('[Background] 商品URL:', request.url);
+    console.log('[Background] 选择器:', request.selector);
+    
+    notifyPopup('addLog', {
+      message: `❌ 商品URL: ${request.url}。\n未找到采集入口：${request.selector}。\n自动跳过，继续下一条链接...`,
+      type: 'error',
+    });
+    
+    // 类似 elementSuccess，继续处理下一条链接
+    handleAfterClick();
+    sendResponse({ status: 'not-found-handled' });
   }
 });
 

@@ -69,16 +69,23 @@ function processClickElement(selector, waitForSuccess) {
         console.log('[processClickElement 重试] ✅ 找到元素');
         handleElementFound(element, selector, waitForSuccess);
       } else {
-        console.log('[processClickElement 重试] ❌ 仍未找到元素，拓展搜索');
-        notifyPopupLog(`❌ 未找到页面元素\n选择器: ${selector}\n请检查选择器是否正确`, 'error');
+        console.log('[processClickElement 重试] ❌ 仍未找到元素');
         
-        // 发送失败消息给background
+        // 获取当前URL
+        const currentUrl = window.location.href;
+        console.log('[processClickElement] 📍 当前商品URL:', currentUrl);
+        console.log('[processClickElement] 📍 未找到的选择器:', selector);
+        
+        notifyPopupLog(`❌ 未找到页面元素\n选择器: ${selector}\n当前URL: ${currentUrl}`, 'error');
+        
+        // 发送"元素未找到"消息给background，让它继续下一条链接
         chrome.runtime.sendMessage({
-          action: 'elementFailed',
+          action: 'elementNotFound',
           selector: selector,
-          message: '元素未找到，重试后仍未找到',
+          url: currentUrl,
+          message: '元素未找到（重试后仍未找到），跳过此链接继续下一条',
         }, function(bgResponse) {
-          console.log('[processClickElement] background 收到 elementFailed 消息');
+          console.log('[processClickElement] background 收到 elementNotFound 消息');
         });
         
         isClickProcessing = false;
